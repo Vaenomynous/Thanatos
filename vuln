@@ -1,0 +1,42 @@
+# Vulnerability Scanner
+
+# This Python script is designed to perform vulnerability scanning capabilities including SQL Injection, XSS (Cross-Site Scripting), and common misconfigurations detection.
+
+import requests
+from urllib.parse import urlparse
+
+# Function to detect SQL injection on a given URL
+
+def detect_sql_injection(url):
+    payloads = ["' OR '1'='1' --", "' OR '1'='0' --"]
+    for payload in payloads:
+        response = requests.get(url + payload)
+        if "error" in response.text.lower():
+            print(f"Potential SQL Injection vulnerability found: {url + payload}")
+
+# Function to detect XSS vulnerabilities
+
+def detect_xss(url):
+    payload = "<script>alert('XSS')</script>"
+    response = requests.get(url + '?search=' + payload)
+    if payload in response.text:
+        print(f"Potential XSS vulnerability found: {url}")
+
+# Common misconfigurations check
+
+def check_common_misconfigurations(url):
+    response = requests.get(url)
+    if "robots.txt" in response.text:
+        print(f"Common misconfiguration detected at: {url}")
+
+# Main function to perform scanning
+
+def main(url):
+    detect_sql_injection(url)
+    detect_xss(url)
+    check_common_misconfigurations(url)
+
+# Entry point of the script
+if __name__ == '__main__':
+    target_url = input("Enter the target URL for scanning: ").strip()
+    main(target_url)
